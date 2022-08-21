@@ -1,24 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import BlogList from './blogList';
 
 const Home = () => {
+ // Used in blogList.js component
+    const [blogs, setBlogs] = useState(null);
+    const [isPending, setisPending] = useState(true);
+    const [error, setError] = useState(null);
 
-    const [blogs, setBlogs] = useState([
-        {title: 'My new Website', body: 'lorem ipsum...', author: 'Abhishek', id: 1},
-        {title: 'My new Job', body: 'lorem ipsum...', author: 'Prachi', id: 2},
-        {title: 'Dhan Ropni', body: 'lorem ipsum...', author: 'Mahto', id: 3}
-    ]);
 
-    return ( 
-        <div className="home">
-            {blogs.map((blog) => (
-                <div className="blog-preview" key={blog.id}>
-                    <h2>{ blog.title }</h2>
-                    <p>Written by : { blog.author}</p>
-                </div>
-            ))}
-        </div>
-        
-     );
+
+useEffect(() => {
+    setTimeout( () => {
+        fetch('http://localhost:8000/blogs')
+        .then((res)=> {
+            if(!res.ok){
+                throw Error(' error : Resource could not be located.');
+            }
+            return res.json();
+        })
+        .then((data) => {
+            setBlogs(data);
+            setisPending(false);
+            setError(null);
+        })
+        .catch(err => {
+            setisPending(false);
+            setError(err.message);
+        })
+    }, 1000);   
+}, [])
+
+return (
+    <div className="home">
+        {error && <div>{error}</div>}
+        {isPending && <div>Loading...</div>}
+        {blogs && <BlogList blogs={blogs} title="All Blogs" />}
+    </div>
+);
 }
  
 export default Home;
