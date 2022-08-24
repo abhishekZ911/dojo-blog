@@ -8,15 +8,19 @@ const useFetch = (url) => {
     const [error, setError] = useState(null);
 
 
-
     useEffect(() => {
+
+        const abortCont = new AbortController();
+
+
         setTimeout( () => {
-            fetch(url)
+            fetch(url, {signal: abortCont.signal})
             .then((res)=> {
                 if(!res.ok){
                     throw Error(' error : Resource could not be located.');
                 }
                 return res.json();
+                
             })
             .then((data) => {
                 setData(data);
@@ -24,8 +28,16 @@ const useFetch = (url) => {
                 setError(null);
             })
             .catch(err => {
-                setisPending(false);
-                setError(err.message);
+                if (err.name === 'AbortError')
+                {
+                    console.log('fetch aborted');
+                }
+                else
+                {
+                    setisPending(false);
+                    setError(err.message);
+                }
+                
             })
         }, 1000);   
     }, [url]);
