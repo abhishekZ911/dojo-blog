@@ -10,6 +10,6 @@ const Navbar = () => {
             <Link to="/create">New Blog</Link>
         </div>
     </nav> );
-}
+} 
  
 export default Navbar;
